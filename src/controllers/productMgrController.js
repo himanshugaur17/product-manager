@@ -22,3 +22,10 @@ const filterProducts = (req, res) => {
         message: 'Products fetched successfully'
     });
 }
+module.exports = {
+    filterProducts,
+    updateProduct,
+    getProduct,
+    createProduct
+
+}
