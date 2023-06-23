@@ -5,7 +5,36 @@ const getProduct = (id) => {
 
 }
 const filterProducts = (filterCriteria) => {
-
+    if (filterCriteria.nameLike) {
+        let filteredProducts = prisma.product.findMany({
+            where: {
+                name: {
+                    contains: filterCriteria.nameLike
+                }
+            }
+        });
+        return filteredProducts;
+    }
+    else if (filterCriteria.descriptionLike) {
+        return prisma.product.findMany({
+            where: {
+                description: {
+                    contains: filterCriteria.descriptionLike
+                }
+            }
+        })
+    }
+    let prismaFilterCrtiteria = {
+        ...(filterCriteria.name && { name: filterCriteria.name }),
+        ...(filterCriteria.stock && { stock: filterCriteria.stock }),
+        ...(filterCriteria.quantity && { quantity: filterCriteria.quantity }),
+        ...(filterCriteria.status && { status: filterCriteria.status }),
+        ...(filterCriteria.description && { description: filterCriteria.description }),
+        ...(filterCriteria.category && { category: filterCriteria.category })
+    }
+    return prisma.product.findMany({
+        where: prismaFilterCrtiteria
+    })
 }
 const updateProduct = (updateRequest, id) => {
     let proposedProduct = {
