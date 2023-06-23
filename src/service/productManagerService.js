@@ -7,8 +7,21 @@ const getProduct = (id) => {
 const filterProducts = (filterCriteria) => {
 
 }
-const updateProduct = (updateRequest) => {
-
+const updateProduct = (updateRequest, id) => {
+    let proposedProduct = {
+        ...(updateRequest.name && { name: updateRequest.name }),
+        ...(updateRequest.stock && { stock: updateRequest.stock }),
+        ...(updateRequest.quantity && { quantity: updateRequest.quantity }),
+        ...(updateRequest.status && { status: updateRequest.status }),
+        ...(updateRequest.description && { description: updateRequest.description }),
+        ...(updateRequest.category && { category: updateRequest.category })
+    }
+    const updatedProduct = prisma.product.update({
+        where: {
+            id: id
+        },
+        data: proposedProduct
+    })
 }
 const createProduct = async (product) => {
     let name = product.name;
