@@ -14,7 +14,8 @@ model Product {
   name      String
   description String
   stock     Int       
-  quantity  Int      
+  quantity  Int
+  price Int      
   category  Category
   status    Status
 }

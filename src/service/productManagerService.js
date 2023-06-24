@@ -1,10 +1,10 @@
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 
-const getProduct = (id) => {
+const getProductService = (id) => {
 
 }
-const filterProducts = (filterCriteria) => {
+const filterProductService = (filterCriteria) => {
     if (filterCriteria.nameLike) {
         let filteredProducts = prisma.product.findMany({
             where: {
@@ -36,7 +36,7 @@ const filterProducts = (filterCriteria) => {
         where: prismaFilterCrtiteria
     })
 }
-const updateProduct = (updateRequest, id) => {
+const updateProductService = (updateRequest, id) => {
     let proposedProduct = {
         ...(updateRequest.name && { name: updateRequest.name }),
         ...(updateRequest.stock && { stock: updateRequest.stock }),
@@ -52,11 +52,14 @@ const updateProduct = (updateRequest, id) => {
         data: proposedProduct
     })
 }
-const createProduct = async (product) => {
+const createProductService = async (product) => {
     let name = product.name;
-    existingProduct = prisma.product.findFirst({
-        name: name
+    existingProduct = await prisma.product.findFirst({
+        where:{
+            name: name
+        }
     })
+    console.log(existingProduct)
     if (existingProduct) {
         console.error(`Product with name ${name} already exists`)
         return product;
@@ -80,9 +83,19 @@ const createProduct = async (product) => {
         return newProduct;
     }
 }
-const deleteProduct = (id) => {
+const deleteProductService = (id) => {
+
+}
+const bulkUpload = (products) => {
 
 }
 function inputProductValid(product) {
     return product.price > 0 && product.stock >= 0 && product.quantity >= 0
+}
+module.exports = {
+    getProductService,
+    deleteProductService,
+    updateProductService,
+    createProductService,
+    filterProductService
 }

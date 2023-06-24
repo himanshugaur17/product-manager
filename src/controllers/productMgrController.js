@@ -1,14 +1,25 @@
-const createProduct = (req, res) => {
-    console.log('createProduct')
-    res.json({
-        message: 'Product created successfully'
-    })
+const {
+    getProductService,
+    deleteProductService,
+    updateProductService,
+    createProductService,
+    filterProductService
+} = require('../service/productManagerService.js');
+
+const createProduct = (req, res, next) => {
+    console.log('creating product')
+    const product = req.body
+    const createdProductPromise = createProductService(product)
+    createdProductPromise.then((createdProduct) => res.json({
+        data: createdProduct
+    })).catch((error) => next(error));
 }
-const getProduct = (req, res) => {
-    console.log('getProduct')
-    res.json({
-        message: 'Product fetched successfully'
-    });
+const getProduct = (req, res, next) => {
+    const id = req.params.id
+    console.log(`fetching product details for ${id}`)
+    getProductService(id).then((product) => res.json({
+        data: product
+    })).catch((error) => next(error));
 }
 const updateProduct = (req, res) => {
     console.log('updateProduct')
@@ -27,5 +38,4 @@ module.exports = {
     updateProduct,
     getProduct,
     createProduct
-
 }
