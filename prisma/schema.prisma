@@ -26,6 +26,7 @@ enum Category {
   ACCESSORIES
   HOME
   BEAUTY
+  ELECTRONICS
 }
 
 enum Status {
