@@ -1,10 +1,13 @@
 const { getProductService, deleteProductService, updateProductService,
     createProductService, filterProductService } = require('../service/productManagerService.js');
-
+const { validationResult } = require('express-validator');
 const { addJob } = require('../job/productCreationJob.js');
 
 const createProduct = (req, res, next) => {
     console.log('creating product')
+    const productBodyValidationRes = validationResult(req);
+    if (!productBodyValidationRes.isEmpty())
+        next({ message: productBodyValidationRes.errors.map(err => err.msg).join(','), status: 400 })
     const product = req.body
     const createdProductPromise = createProductService(product)
     createdProductPromise.then((createdProduct) => {
@@ -42,7 +45,7 @@ const updateProduct = (req, res) => {
 
 const filterProducts = (req, res, next) => {
     console.log('filter products')
-    filterProductService(req.body, req.params.cursor, req.params.pageSize)
+    filterProductService(req.body, req.query.cursor, req.query.pageSize)
         .then((products) => {
             if (products.length == 0) {
                 res.locals = {
@@ -51,11 +54,11 @@ const filterProducts = (req, res, next) => {
                 }
             }
             else {
-                const lastProdId = products[products.length - 1].cursor
+                const lastProdId = products[products.length - 1].id
                 res.locals = {
                     products: products,
                     cursor: lastProdId,
-                    hasNextPage: products.length < req.params.pageSize
+                    hasNextPage: products.length == parseInt(req.query.pageSize)
                 }
             }
             next()

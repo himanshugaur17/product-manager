@@ -10,9 +10,10 @@ const getProductService = (id) => {
 }
 
 const filterProductService = (filterCriteria, cursor, pageSize) => {
+    pageSize = parseInt(pageSize)
     const cursorCriteria = {
         take: pageSize,
-        ...(cursor && { cursor: cursor, skip: 1 }), /* If cursor specified then it will fetch based on the cursor */
+        ...(cursor && { cursor: { id: parseInt(cursor) }, skip: 1 }), /* If cursor specified then it will fetch based on the cursor */
         orderBy: {
             id: 'asc'
         }
