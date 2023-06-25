@@ -4,24 +4,35 @@ const prisma = new PrismaClient()
 const getProductService = (id) => {
 
 }
-const filterProductService = (filterCriteria) => {
+const filterProductService = (filterCriteria, cursor, pageSize) => {
+    const cursorCriteria = {
+        take: pageSize,
+        ...(cursor && { cursor: cursor, skip: 1 }), /* If cursor specified then it will fetch based on the cursor */
+        orderBy: {
+            id: 'asc'
+        }
+    }
+    /* Functionality for regex based search by product name */
     if (filterCriteria.nameLike) {
         let filteredProducts = prisma.product.findMany({
             where: {
                 name: {
                     contains: filterCriteria.nameLike
                 }
-            }
+            },
+            ...cursorCriteria
         });
         return filteredProducts;
     }
+    /* Functionality for regex based search by product description */
     else if (filterCriteria.descriptionLike) {
         return prisma.product.findMany({
             where: {
                 description: {
                     contains: filterCriteria.descriptionLike
                 }
-            }
+            },
+            ...cursorCriteria
         })
     }
     let prismaFilterCrtiteria = {
@@ -33,7 +44,8 @@ const filterProductService = (filterCriteria) => {
         ...(filterCriteria.category && { category: filterCriteria.category })
     }
     return prisma.product.findMany({
-        where: prismaFilterCrtiteria
+        where: prismaFilterCrtiteria,
+        ...cursorCriteria
     })
 }
 const updateProductService = (updateRequest, id) => {
@@ -55,7 +67,7 @@ const updateProductService = (updateRequest, id) => {
 const createProductService = async (product) => {
     let name = product.name;
     existingProduct = await prisma.product.findFirst({
-        where:{
+        where: {
             name: name
         }
     })
@@ -97,5 +109,6 @@ module.exports = {
     deleteProductService,
     updateProductService,
     createProductService,
-    filterProductService
+    filterProductService,
+    bulkUpload
 }
