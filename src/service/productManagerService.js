@@ -2,8 +2,9 @@ const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 
 const getProductService = (id) => {
-
+    return prisma.product.findUnique({ id: id })
 }
+
 const filterProductService = (filterCriteria, cursor, pageSize) => {
     const cursorCriteria = {
         take: pageSize,
@@ -35,19 +36,14 @@ const filterProductService = (filterCriteria, cursor, pageSize) => {
             ...cursorCriteria
         })
     }
-    let prismaFilterCrtiteria = {
-        ...(filterCriteria.name && { name: filterCriteria.name }),
-        ...(filterCriteria.stock && { stock: filterCriteria.stock }),
-        ...(filterCriteria.quantity && { quantity: filterCriteria.quantity }),
-        ...(filterCriteria.status && { status: filterCriteria.status }),
-        ...(filterCriteria.description && { description: filterCriteria.description }),
-        ...(filterCriteria.category && { category: filterCriteria.category })
+    else {
+        return prisma.product.findMany({
+            where: getPrismaFilterCriteria(filterCriteria),
+            ...cursorCriteria
+        })
     }
-    return prisma.product.findMany({
-        where: prismaFilterCrtiteria,
-        ...cursorCriteria
-    })
 }
+
 const updateProductService = (updateRequest, id) => {
     let proposedProduct = {
         ...(updateRequest.name && { name: updateRequest.name }),
@@ -64,6 +60,7 @@ const updateProductService = (updateRequest, id) => {
         data: proposedProduct
     })
 }
+
 const createProductService = async (product) => {
     let name = product.name;
     existingProduct = await prisma.product.findFirst({
@@ -95,20 +92,35 @@ const createProductService = async (product) => {
         return newProduct;
     }
 }
+
 const deleteProductService = (id) => {
-
+    return prisma.product.delete({
+        where: {
+            id: id
+        }
+    })
 }
-const bulkUpload = (products) => {
 
+const bulkUploadService = async (job) => {
+    const productsToCreate = job.products
+    await prisma.product.createMany({
+        data: productsToCreate
+    })
 }
+
 function inputProductValid(product) {
     return product.price > 0 && product.stock >= 0 && product.quantity >= 0
 }
+function getPrismaFilterCriteria(filterCriteria) {
+    return {
+        ...(filterCriteria.name && { name: filterCriteria.name }),
+        ...(filterCriteria.stock && { stock: filterCriteria.stock }),
+        ...(filterCriteria.quantity && { quantity: filterCriteria.quantity }),
+        ...(filterCriteria.status && { status: filterCriteria.status }),
+        ...(filterCriteria.description && { description: filterCriteria.description }),
+        ...(filterCriteria.category && { category: filterCriteria.category })
+    }
+}
 module.exports = {
-    getProductService,
-    deleteProductService,
-    updateProductService,
-    createProductService,
-    filterProductService,
-    bulkUpload
+    getProductService, deleteProductService, updateProductService, createProductService, filterProductService, bulkUploadService
 }

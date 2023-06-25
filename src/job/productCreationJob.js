@@ -6,3 +6,6 @@ const redisConfig = {
 }
 const queue = new Queue('productCreateQueue', redisConfig)
 const addJob = async (job) => await queue.add('productCreation', job);
+module.exports = {
+    addJob
+}

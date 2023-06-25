@@ -1,10 +1,7 @@
-const {
-    getProductService,
-    deleteProductService,
-    updateProductService,
-    createProductService,
-    filterProductService
-} = require('../service/productManagerService.js');
+const { getProductService, deleteProductService, updateProductService,
+    createProductService, filterProductService } = require('../service/productManagerService.js');
+    
+const { addJob } = require('../job/productCreationJob.js');
 
 const createProduct = (req, res, next) => {
     console.log('creating product')
@@ -15,6 +12,7 @@ const createProduct = (req, res, next) => {
         next(req, res);
     }).catch((error) => next(error));
 }
+
 const getProduct = (req, res, next) => {
     const id = req.params.id
     console.log(`fetching product details for ${id}`)
@@ -23,12 +21,24 @@ const getProduct = (req, res, next) => {
         next(req, res)
     }).catch((error) => next(error));
 }
-const updateProduct = (req, res) => {
-    console.log('updateProduct')
-    res.json({
-        message: 'Product updated successfully'
-    });
+
+const deleteProduct = (req, res, next) => {
+    const id = req.params.id
+    deleteProductService(id).then((product) => {
+        res.locals = product;
+        next(req, res)
+    }).catch((error) => next(error));
 }
+
+const updateProduct = (req, res) => {
+    const id = req.params.id
+    console.log(`fetching product details for ${id}`)
+    updateProductService(req.body, id).then((product) => {
+        res.locals = product;
+        next(req, res)
+    }).catch((error) => next(error));
+}
+
 const filterProducts = (req, res, next) => {
     console.log('filter products')
     filterProductService(req.body, req.params.cursor, req.params.pageSize)
@@ -51,9 +61,14 @@ const filterProducts = (req, res, next) => {
         })
         .catch((error) => next(error));
 }
-module.exports = {
-    filterProducts,
-    updateProduct,
-    getProduct,
-    createProduct
+
+const bulkUpload = (req, res, next) => {
+    addJob({ products: req.body })
+        .then(() => {
+            res.locals = "Job has been queued successfully"
+            next(req, res)
+        })
+        .error((error) => next(error))
+
 }
+module.exports = { filterProducts, updateProduct, getProduct, createProduct, bulkUpload, deleteProduct }
