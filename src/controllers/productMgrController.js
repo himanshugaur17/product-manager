@@ -1,6 +1,6 @@
 const { getProductService, deleteProductService, updateProductService,
     createProductService, filterProductService } = require('../service/productManagerService.js');
-    
+
 const { addJob } = require('../job/productCreationJob.js');
 
 const createProduct = (req, res, next) => {
@@ -9,33 +9,34 @@ const createProduct = (req, res, next) => {
     const createdProductPromise = createProductService(product)
     createdProductPromise.then((createdProduct) => {
         res.locals = createdProduct;
-        next(req, res);
+        next()
     }).catch((error) => next(error));
 }
 
 const getProduct = (req, res, next) => {
-    const id = req.params.id
+    const id = parseInt(req.params.id)
     console.log(`fetching product details for ${id}`)
     getProductService(id).then((product) => {
+        console.log(product)
         res.locals = product;
-        next(req, res)
+        next()
     }).catch((error) => next(error));
 }
 
 const deleteProduct = (req, res, next) => {
-    const id = req.params.id
+    const id = parseInt(req.params.id)
     deleteProductService(id).then((product) => {
         res.locals = product;
-        next(req, res)
+        next()
     }).catch((error) => next(error));
 }
 
 const updateProduct = (req, res) => {
-    const id = req.params.id
+    const id = parseInt(req.params.id)
     console.log(`fetching product details for ${id}`)
     updateProductService(req.body, id).then((product) => {
         res.locals = product;
-        next(req, res)
+        next()
     }).catch((error) => next(error));
 }
 
@@ -57,7 +58,7 @@ const filterProducts = (req, res, next) => {
                     hasNextPage: products.length < req.params.pageSize
                 }
             }
-            next(req, res)
+            next()
         })
         .catch((error) => next(error));
 }
@@ -66,7 +67,7 @@ const bulkUpload = (req, res, next) => {
     addJob({ products: req.body })
         .then(() => {
             res.locals = "Job has been queued successfully"
-            next(req, res)
+            next()
         })
         .error((error) => next(error))
 

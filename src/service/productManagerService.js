@@ -2,7 +2,11 @@ const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 
 const getProductService = (id) => {
-    return prisma.product.findUnique({ id: id })
+    return prisma.product.findUnique({
+        where: {
+            id: id
+        }
+    })
 }
 
 const filterProductService = (filterCriteria, cursor, pageSize) => {

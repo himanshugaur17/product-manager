@@ -7,8 +7,19 @@ app.listen(8080, () => {
     console.log('listening on port 8080');
 })
 app.use('/', productRoutes)
+
+worker.on('completed', (job) => {
+    console.log(`Job ${job.id} completed`);
+});
+worker.on('failed', (job, error) => {
+    console.error(`Job ${job.id} failed with error ${error.message}`);
+});
+
+worker.on('error', (failedReason) => {
+    console.error(failedReason)
+})
 /* Global response-handler middleware */
-app.use(req, res => {
+app.use((req, res, next) => {
     const data = res.locals
     res.json({
         data: data,
@@ -24,16 +35,4 @@ app.use((err, req, res, next) => {
         message: err.message,
         isSuccess: false
     })
-})
-
-worker.run()
-worker.on('completed', (job) => {
-    console.log(`Job ${job.id} completed`);
-});
-worker.on('failed', (job, error) => {
-    console.error(`Job ${job.id} failed with error ${error.message}`);
-});
-
-worker.on('error', (failedReason) => {
-    console.error(failedReason)
 })

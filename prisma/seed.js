@@ -97,7 +97,10 @@ async function seed() {
             }
         ];
 
-        await prisma.product.createMany({ data: products });
+        for (const product of products) {
+            await prisma.product.create({ data: product });
+        }
+
         console.log('Seeding completed successfully!');
     } catch (error) {
         console.error('Seeding failed:', error);
